@@ -92,7 +92,7 @@ class TranslationForm implements TranslationFormInterface
      */
     private function getFieldsList($options, $class)
     {
-        $formFields = array_keys($options['fields']);
+        $formFields = array_diff(array_keys($options['fields']), $options['exclude_fields']);
 
         // Check existing
         foreach ($formFields as $field) {
