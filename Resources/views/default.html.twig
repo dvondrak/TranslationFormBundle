@@ -9,7 +9,7 @@
                 <a href="#" data-toggle="tab" data-target=".{{ translationsFields.vars.id }}_a2lix_translationsFields-{{ locale }}">
                     {{ translationsFields.vars.label|default(locale|humanize)|trans }}
                     {% if form.vars.default_locale == locale %}{{ form.vars.default_label|default('[Default]')|trans }}{% endif %}
-                    {% if translationsFields.vars.required %}*{% endif %}
+                    {% if translationsFields.vars.required %}{{ form.vars.default_label|default('[Required]')|trans }}{% endif %}
                 </a>
             </li>
         {% endfor %}
