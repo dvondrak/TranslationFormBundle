@@ -95,8 +95,12 @@ class TranslationsListener implements EventSubscriberInterface
         // Gedmo    
         } elseif (method_exists($translatableClass, "getTranslationClass")) {
             return $translatableClass::getTranslationClass();
+
+        // Vanio Domain Bundle
+        } elseif (method_exists($translatableClass, "translationClass")) {
+            return $translatableClass::translationClass();
         }
-        
+
         return $translatableClass .'Translation';
     }
 }
