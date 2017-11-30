@@ -74,9 +74,6 @@ class TranslationsType extends AbstractType
             'fields' => array(),
             'exclude_fields' => array(),
             'constraints' => new Assert\Valid(),
-            'validation_groups' => function (FormInterface $form) {
-                return $form->getParent() ? $this->resolveValidationGroups($form->getParent()) : null;
-            },
         ));
     }
 

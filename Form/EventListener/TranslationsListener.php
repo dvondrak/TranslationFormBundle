@@ -2,11 +2,16 @@
 
 namespace A2lix\TranslationFormBundle\Form\EventListener;
 
-use A2lix\TranslationFormBundle\Util\LegacyFormHelper,
-    A2lix\TranslationFormBundle\TranslationForm\TranslationForm,
-    Symfony\Component\Form\FormEvent,
-    Symfony\Component\Form\FormEvents,
-    Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use A2lix\TranslationFormBundle\TranslationForm\TranslationForm;
+use A2lix\TranslationFormBundle\Util\LegacyFormHelper;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\Extension\Validator\Constraints\FormValidator;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormConfigBuilder;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Validator\Constraint;
+use Vanio\Stdlib\Objects;
 
 /**
  * @author David ALLIX
@@ -52,6 +57,13 @@ class TranslationsListener implements EventSubscriberInterface
                     );
                 }
             }
+        }
+
+        $validationGroups = $form->getConfig()->getOption('validation_groups');
+
+        if ($form->getParent() && $validationGroups === null) {
+            $formOptions['validation_groups'] = $this->resolveValidationGroups($form->getParent());
+            Objects::setPropertyValue($form->getConfig(), 'options', $formOptions, FormConfigBuilder::class);
         }
     }
     
@@ -102,5 +114,24 @@ class TranslationsListener implements EventSubscriberInterface
         }
 
         return $translatableClass .'Translation';
+    }
+
+    /**
+     * @param FormInterface $form
+     * @return string[]
+     */
+    private function resolveValidationGroups(FormInterface $form)
+    {
+        $resolveValidationGroups = function () use ($form) {
+            return FormValidator::{'getValidationGroups'}($form);
+        };
+        $resolveValidationGroups = $resolveValidationGroups->bindTo(null, FormValidator::class);
+        $validationGroups = $resolveValidationGroups();
+
+        if ($validationGroups && !in_array(Constraint::DEFAULT_GROUP, $validationGroups)) {
+            $validationGroups[] = Constraint::DEFAULT_GROUP;
+        }
+
+        return $validationGroups;
     }
 }
