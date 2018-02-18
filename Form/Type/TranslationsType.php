@@ -8,10 +8,8 @@ use A2lix\TranslationFormBundle\Form\EventListener\TranslationsListener,
     Symfony\Component\Form\AbstractType,
     Symfony\Component\Form\FormInterface,
     Symfony\Component\Form\FormBuilderInterface,
-    Symfony\Component\Form\Extension\Validator\Constraints\FormValidator,
     Symfony\Component\OptionsResolver\OptionsResolverInterface,
     Symfony\Component\OptionsResolver\OptionsResolver,
-    Symfony\Component\Validator\Constraint,
     Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -92,24 +90,5 @@ class TranslationsType extends AbstractType
     public function getBlockPrefix()
     {
         return 'a2lix_translations';
-    }
-
-    /**
-     * @param FormInterface $form
-     * @return string[]
-     */
-    private function resolveValidationGroups(FormInterface $form)
-    {
-        $resolveValidationGroups = function () use ($form) {
-            return FormValidator::{'getValidationGroups'}($form);
-        };
-        $resolveValidationGroups = $resolveValidationGroups->bindTo(null, FormValidator::class);
-        $validationGroups = $resolveValidationGroups();
-
-        if ($validationGroups && !in_array(Constraint::DEFAULT_GROUP, $validationGroups)) {
-            $validationGroups[] = Constraint::DEFAULT_GROUP;
-        }
-
-        return $validationGroups;
     }
 }
