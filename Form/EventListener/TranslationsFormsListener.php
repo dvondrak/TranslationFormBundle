@@ -20,11 +20,9 @@ class TranslationsFormsListener implements EventSubscriberInterface
         $data = $event->getData();
 
         foreach ($data as $locale => $translation) {
-            // Remove useless Translation object
-            if (!$translation) {
-                $data->removeElement($translation);
-
-            } else {
+            if ($translation === null && $data instanceof \ArrayAccess) {
+                unset($data['locale']);
+            } elseif (is_callable([$translation, 'setLocale'])) {
                 $translation->setLocale($locale);
             }
         }
