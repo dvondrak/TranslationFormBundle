@@ -7,32 +7,57 @@ Example:
 {{ a2lixTranslations.partialTranslations(editForm.translations, ['url']) }}
 #}
 
-{% macro partialTranslations(form, fieldsNames) %}
-    <div class="a2lix_translations tabbable">
-        <ul class="a2lix_translationsLocales nav nav-tabs">
-        {% for translationsFields in form %}
-            {% set locale = translationsFields.vars.name %}
+{%- macro form_root_id(form) -%}
+    {%- from _self import form_root_id -%}
 
-            <li {% if app.request.locale == locale %}class="active"{% endif %}>
-                <a href="#" data-toggle="tab" data-target=".{{ translationsFields.vars.id }}_a2lix_translationsFields-{{ locale }}">
-                    {{ locale|capitalize }}
-                    {% if form.vars.default_locale == locale %}[Default]{% endif %}
-                    {% if translationsFields.vars.required %}*{% endif %}
-                </a>
-            </li>
-        {% endfor %}
+    {{- form.parent ? form_root_id(form.parent) : form.vars.id -}}
+{%- endmacro -%}
+
+{% macro translations_locales(form) %}
+    {% import _self as macros %}
+
+    {% set translationsLocales = null %}
+
+    {% if 'a2lix_translationsForms' in form.vars.block_prefixes or 'a2lix_translations' in form.vars.block_prefixes %}
+        <ul class="a2lix_translationsLocales nav nav-tabs">
+            {% for translationForm in form %}
+                {% set locale = translationForm.vars.name %}
+
+                <li class="{% if locale == app.request.locale %}active{% endif %} {% if not translationForm.vars.valid %}has-error{% endif %}">
+                    <a href="#" data-toggle="tab" data-target="#{{ macros.form_root_id(form) }} [class*='_a2lix_translationsFields-{{ locale }}']">
+                        {{ translationForm.vars.label|default(locale|humanize)|trans }}
+                        {% if form.vars.default_locale == locale %}{{ form.vars.default_label|default('[Default]')|trans }}{% endif %}
+                        {% if translationForm.vars.required %}{{ form.vars.default_label|default('[Required]')|trans }}{% endif %}
+                    </a>
+                </li>
+            {% endfor %}
         </ul>
+    {% else %}
+        {% for child in form %}
+            {% if not translationsLocales %}
+                {% set translationsLocales = macros.translations_locales(child) %}
+                {{ translationsLocales }}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endmacro %}
+
+{% macro partialTranslations(form, fieldsNames) %}
+    {% from _self import translations_locales %}
+
+    <div class="a2lix_translations tabbable">
+        {{ translations_locales(form) }}
 
         <div class="a2lix_translationsFields tab-content">
-        {% for translationsFields in form %}
-            {% set locale = translationsFields.vars.name %}
+            {% for translationsFields in form %}
+                {% set locale = translationsFields.vars.name %}
 
-            <div class="{{ translationsFields.vars.id }}_a2lix_translationsFields-{{ locale }} a2lix_translationsFields-{{ locale }} tab-pane {% if app.request.locale == locale %}active{% endif %}">
-            {% for translationsField in translationsFields if translationsField.vars.name in fieldsNames %}
-                {{ form_row(translationsField) }}
+                <div class="{{ translationsFields.vars.id }}_a2lix_translationsFields-{{ locale }} a2lix_translationsFields-{{ locale }} tab-pane {% if app.request.locale == locale %}active{% endif %}">
+                    {% for translationsField in translationsFields if translationsField.vars.name in fieldsNames %}
+                        {{ form_row(translationsField) }}
+                    {% endfor %}
+                </div>
             {% endfor %}
-            </div>
-        {% endfor %}
         </div>
     </div>
 {% endmacro %}

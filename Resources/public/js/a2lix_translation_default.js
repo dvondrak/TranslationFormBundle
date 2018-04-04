@@ -1,19 +1,30 @@
-$(function() {
-    $('ul.a2lix_translationsLocales').on('click', 'a', function(evt) {
-        evt.preventDefault();
-
-        var target = $(this).attr('data-target');
-        $('li:has(a[data-target="' + target + '"]), div' + target, 'div.a2lix_translations').addClass('active')
-            .siblings().removeClass('active');
+$(function () {
+    $('.a2lix_translationsLocales').on('click', 'a', function (event) {
+        event.preventDefault();
+        var target = $(this).data('target');
+        var $tab = $('.a2lix_translationsLocales li:has(a[data-target="' + target + '"]), ' + target);
+        $tab.addClass('active');
+        $tab.siblings().removeClass('active');
     });
 
-    $('div.a2lix_translationsLocalesSelector').on('change', 'input', function(evt) {
-        var $tabs = $('ul.a2lix_translationsLocales');
+    $('.a2lix_translationsLocalesSelector').each(function () {
+        var $this = $(this);
+        var $tabs = $('.a2lix_translationsLocales');
+        var rootId = $this.data('rootId');
+        $this.find('input')
+            .change(function (event) {
+                var target = '#' + rootId + " [class*='_a2lix_translationsFields-" + this.value + "']";
+                var checked = this.checked;
+                var $tab = $tabs.find('li:has(a[data-target="' + target + '"])');
 
-        $('div.a2lix_translationsLocalesSelector').find('input').each(function() {
-            $tabs.find('li:has(a[data-target=".a2lix_translationsFields-' + this.value + '"])').toggle(this.checked);
-        });
+                $tab.each(function () {
+                    if ($(this).is('.active') && !checked) {
+                        $tab.siblings().first().find('a').trigger('click');
+                    }
+                });
 
-        $('ul.a2lix_translationsLocales li:visible:first').find('a').trigger('click');
-    }).trigger('change');
+                $tab.toggle(this.checked);
+            })
+            .trigger('change');
+    });
 });

@@ -32,9 +32,16 @@ class TranslationsLocalesSelectorType extends AbstractType
      * @param \Symfony\Component\Form\FormInterface $form
      * @param array $options
      */
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function finishView(FormView $view, FormInterface $form, array $options)
     {
+        $rootView = $view;
+
+        while ($rootView->parent) {
+            $rootView = $rootView->parent;
+        }
+
         $view->vars['default_locale'] = $this->localeProvider->getDefaultLocale();
+        $view->vars['attr']['data-root-id'] = $rootView->vars['id'];
     }
 
     /**
@@ -60,7 +67,9 @@ class TranslationsLocalesSelectorType extends AbstractType
 
     public function getParent()
     {
-        return 'choice';
+        return method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix')
+            ? 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'
+            : 'choice';
     }
 
     // BC for SF < 3.0
