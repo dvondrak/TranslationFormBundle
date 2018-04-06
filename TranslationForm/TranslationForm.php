@@ -5,7 +5,8 @@ namespace A2lix\TranslationFormBundle\TranslationForm;
 use Symfony\Component\Form\FormRegistry,
     Symfony\Component\HttpKernel\Kernel,
     Doctrine\Common\Persistence\ManagerRegistry,
-    Doctrine\Common\Util\ClassUtils;
+    Doctrine\Common\Util\ClassUtils,
+    Doctrine\ORM\Mapping\ClassMetadata;
 
 /**
  * @author David ALLIX
@@ -38,16 +39,25 @@ class TranslationForm implements TranslationFormInterface
         $translationClass = ClassUtils::getRealClass($translationClass);
 
         if ($manager = $this->managerRegistry->getManagerForClass($translationClass)) {
-            $metadataClass = $manager->getMetadataFactory()->getMetadataFor($translationClass);
+            /** @var ClassMetadata $metadata */
+            $metadata = $manager->getMetadataFactory()->getMetadataFor($translationClass);
 
-            foreach ($metadataClass->fieldMappings as $fieldMapping) {
-                if (!in_array($fieldMapping['fieldName'], array('id', 'locale')) && !in_array($fieldMapping['fieldName'], $exclude)) {
-                    $fields[] = $fieldMapping['fieldName'];
+            foreach ($metadata->fieldMappings as $fieldMapping) {
+                $field = isset($fieldMapping['originalClass'])
+                    ? $fieldMapping['declaredField']
+                    : $fieldMapping['fieldName'];
+
+                if (
+                    !isset($fields[$field])
+                    && !in_array($field, array('id', 'locale'))
+                    && !in_array($field, $exclude)
+                ) {
+                    $fields[$field] = true;
                 }
             }
         }
 
-        return $fields;
+        return array_keys($fields);
     }
 
     /**
