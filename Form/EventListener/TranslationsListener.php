@@ -59,9 +59,7 @@ class TranslationsListener implements EventSubscriberInterface
             }
         }
 
-        $validationGroups = $form->getConfig()->getOption('validation_groups');
-
-        if ($form->getParent() && $validationGroups === null) {
+        if ($form->getParent() && !isset($formOptions['validation_groups'])) {
             $formOptions['validation_groups'] = $this->resolveValidationGroups($form->getParent());
             Objects::setPropertyValue($form->getConfig(), 'options', $formOptions, FormConfigBuilder::class);
         }
