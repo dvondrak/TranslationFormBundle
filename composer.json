@@ -13,7 +13,7 @@
     ],
     "require": {
         "symfony/symfony": ">=2.3",
-        "vanio/stdlib": "^0.1"
+        "vanio/stdlib": "~0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.1",
