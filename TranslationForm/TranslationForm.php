@@ -30,10 +30,9 @@ class TranslationForm implements TranslationFormInterface
     /**
      *
      * @param string $translationClass
-     * @param array  $exclude
      * @return array
      */
-    protected function getTranslationFields($translationClass, array $exclude = array())
+    protected function getTranslationFields($translationClass)
     {
         $fields = array();
         $translationClass = ClassUtils::getRealClass($translationClass);
@@ -47,11 +46,7 @@ class TranslationForm implements TranslationFormInterface
                     ? $fieldMapping['declaredField']
                     : $fieldMapping['fieldName'];
 
-                if (
-                    !isset($fields[$field])
-                    && !in_array($field, array('id', 'locale'))
-                    && !in_array($field, $exclude)
-                ) {
+                if (!isset($fields[$field]) && !in_array($field, array('id', 'locale'))) {
                     $fields[$field] = true;
                 }
             }
@@ -102,7 +97,7 @@ class TranslationForm implements TranslationFormInterface
      */
     private function getFieldsList($options, $class)
     {
-        $formFields = array_diff(array_keys($options['fields']), $options['exclude_fields']);
+        $formFields = $options['include_fields'] ?: array_keys($options['fields']);
 
         // Check existing
         foreach ($formFields as $field) {
@@ -111,7 +106,11 @@ class TranslationForm implements TranslationFormInterface
             }
         }
 
-        return array_unique(array_merge($formFields, $this->getTranslationFields($class, $options['exclude_fields'])));
+        if (!$options['include_fields']) {
+            $formFields = array_merge($formFields, $this->getTranslationFields($class));
+        }
+
+        return array_unique(array_diff($formFields, $options['exclude_fields']));
     }
 
     /**

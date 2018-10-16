@@ -70,6 +70,7 @@ class TranslationsType extends AbstractType
             'default_locale' => $this->localeProvider->getDefaultLocale(),
             'required_locales' => $this->localeProvider->getRequiredLocales(),
             'fields' => array(),
+            'include_fields' => array(),
             'exclude_fields' => array(),
             'constraints' => new Assert\Valid(),
         ));
