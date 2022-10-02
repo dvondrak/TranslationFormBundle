@@ -12,7 +12,6 @@
         }
     ],
     "require": {
-        "symfony/symfony": ">=2.8",
         "vanio/stdlib": "~0.1"
     },
     "require-dev": {
