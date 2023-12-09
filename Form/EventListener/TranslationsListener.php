@@ -121,7 +121,7 @@ class TranslationsListener implements EventSubscriberInterface
     private function resolveValidationGroups(FormInterface $form)
     {
         $resolveValidationGroups = function () use ($form) {
-            return FormValidator::{'getValidationGroups'}($form);
+            return (new FormValidator)->getValidationGroups($form);
         };
         $resolveValidationGroups = $resolveValidationGroups->bindTo(null, FormValidator::class);
         $validationGroups = $resolveValidationGroups();
